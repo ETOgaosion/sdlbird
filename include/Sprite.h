@@ -47,7 +47,7 @@ class CSprite
   virtual ~CSprite();
 
   void                  Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y);
-  void                  DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, double angle);
+  void                  DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, int angle);
   void                  SetAlpha(unsigned char alpha) { }
   void                  SetColorMod(unsigned char r, unsigned char g, unsigned char b) { }
 

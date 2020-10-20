@@ -61,9 +61,9 @@ static int g_iMouseX = 0;
 static int g_iMouseY = 0;
 static int g_iScore = 0;
 static int g_iHighScore = 0;
-static float g_flBirdVelocity = 0;
-static float g_flBirdHeight = 0;
-static float g_flBirdAngle = 0;
+static int g_flBirdVelocity100 = 0;
+static int g_flBirdHeight100 = 0;
+static int g_flBirdAngle100 = 0;
 static int g_iPipePosX[3] = { 0, 0, 0 };
 static int g_iPipePosY[3] = { 0, 0, 0 };
 
@@ -73,13 +73,29 @@ static void *g_pSfxPoint = NULL;
 static void *g_pSfxSwooshing = NULL;
 static void *g_pSfxWing = NULL;
 
-#define GRAVITY      0.32f
-#define WINGPOWER    5.2f
-#define ROTATION     2.7f
+#define GRAVITY100   32
+#define WINGPOWER100 520
+#define ROTATION100  270
 #define PIPEDISTANCE 150
 #define PIPEWIDTH    50
 #define BIRDWIDTH    48
 #define BIRDMARGIN   12
+
+#ifdef __NAVY__
+#include <fixedptc.h>
+#endif
+
+static inline int min(int a, int b) { return a < b ? a : b; }
+static inline int mycos(int ticks, int multipler) {
+  ticks = ticks / 2 % 360;
+#ifdef __NAVY__
+  return fixedpt_toint(fixedpt_muli(
+        fixedpt_cos(fixedpt_divi(fixedpt_muli(FIXEDPT_PI, ticks), 180)),
+        multipler));
+#else
+  return cos(ticks * 3.14 / 180) * multipler;
+#endif
+}
 
 static void LoadWav()
 {
@@ -313,7 +329,7 @@ static void GameThink_Initial()
 
   char buf[256];
   sprintf(buf, "bird0_%d", (SDL_GetTicks() / 200) % 3);
-  gpSprite->Draw(gpRenderer, buf, 118, 180 * SCALE + (int)(cos(SDL_GetTicks() / 2 * 3.14 / 180) * 5));
+  gpSprite->Draw(gpRenderer, buf, 118, 180 * SCALE + mycos(SDL_GetTicks(), 5));
 
   gpSprite->Draw(gpRenderer, "button_play", 85, 340 * SCALE);
 
@@ -329,8 +345,8 @@ static void GameThink_Initial()
 
 static void BirdFly()
 {
-  g_flBirdVelocity = WINGPOWER;
-  g_flBirdAngle = -45;
+  g_flBirdVelocity100 = WINGPOWER100;
+  g_flBirdAngle100 = -45 * 100;
   SOUND_PlayWAV(1, g_pSfxWing);
 }
 
@@ -362,8 +378,8 @@ static void GameThink_GameStart()
 
   char buf[256];
   sprintf(buf, "bird%d_%d", g_iBirdPic, (SDL_GetTicks() / 200) % 3);
-  g_flBirdHeight = 230 * SCALE + (float)(cos(SDL_GetTicks() / 2 * 3.14 / 180) * 5);
-  gpSprite->Draw(gpRenderer, buf, 60, (int)g_flBirdHeight);
+  g_flBirdHeight100 = 230 * SCALE * 100 + mycos(SDL_GetTicks(), 5 * 100);
+  gpSprite->Draw(gpRenderer, buf, 60, g_flBirdHeight100 / 100);
 
   // draw score
   DrawScore(0);
@@ -393,24 +409,24 @@ static void GameThink_Game()
 
   int i;
 
-  g_flBirdHeight -= g_flBirdVelocity;
-  g_flBirdVelocity -= GRAVITY;
+  g_flBirdHeight100 -= g_flBirdVelocity100;
+  g_flBirdVelocity100 -= GRAVITY100;
 
-  g_flBirdAngle += ROTATION;
-  if (g_flBirdAngle > 85)
+  g_flBirdAngle100 += ROTATION100;
+  if (g_flBirdAngle100 > 85 * 100)
     {
-      g_flBirdAngle = 85;
+      g_flBirdAngle100 = 85 * 100;
     }
 
-  if (g_flBirdHeight < -50)
+  if (g_flBirdHeight100 < -50 * 100)
     {
       // bird is above the sky
-      g_flBirdHeight = -50;
+      g_flBirdHeight100 = -50 * 100;
     }
-  else if (g_flBirdHeight > SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT)
+  else if (g_flBirdHeight100 > (SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT) * 100)
     {
       // bird has hit the ground
-      g_flBirdHeight = SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT;
+      g_flBirdHeight100 = (SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT) * 100;
       bGameOver = true;
     }
 
@@ -448,7 +464,7 @@ static void GameThink_Game()
   // draw bird
   char buf[256];
   sprintf(buf, "bird%d_%d", g_iBirdPic, (SDL_GetTicks() / 200) % 3);
-  gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
+  gpSprite->DrawEx(gpRenderer, buf, 60, g_flBirdHeight100 / 100, g_flBirdAngle100 / 100);
 
   // check if bird is in the range of a pipe
   if (g_iPipePosX[0] < 60 + BIRDWIDTH - BIRDMARGIN && g_iPipePosX[0] + PIPEWIDTH > 60 + BIRDMARGIN)
@@ -463,8 +479,8 @@ static void GameThink_Game()
       // check if the bird hits the pipe
       int upPosY = SCREEN_HEIGHT - LAND_HEIGHT - 250 + g_iPipePosY[0];
       int downPosY = upPosY - PIPE_DRAW_Y_DISTANCE + 320;
-      if (g_flBirdHeight + BIRDMARGIN < downPosY ||
-	  g_flBirdHeight + BIRDWIDTH - BIRDMARGIN > upPosY)
+      if (g_flBirdHeight100 / 100 + BIRDMARGIN < downPosY ||
+	  g_flBirdHeight100 / 100 + BIRDWIDTH - BIRDMARGIN > upPosY)
 	{
 	  bGameOver = true;
 	}
@@ -523,18 +539,18 @@ static void GameThink_GameOver()
     }
   else if (gameoverState == DROP)
     {
-      if (g_flBirdHeight < SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT || !time)
+      if (g_flBirdHeight100 / 100 < SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT || !time)
 	{
 	  if (time == 15)
 	    {
 	      SOUND_PlayWAV(1, g_pSfxDie);
 	    }
-	  g_flBirdAngle = 85;
-	  g_flBirdHeight += 8;
+	  g_flBirdAngle100 = 85 * 100;
+	  g_flBirdHeight100 += 8 * 100;
 
-	  if (g_flBirdHeight > SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT)
+	  if (g_flBirdHeight100 > (SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT) * 100)
 	    {
-	      g_flBirdHeight = SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT;
+	      g_flBirdHeight100 = (SCREEN_HEIGHT - LAND_HEIGHT - BIRD_DROP_HEIGHT) * 100;
 	    }
 
 	  DrawBackground();
@@ -553,7 +569,7 @@ static void GameThink_GameOver()
 	  // draw bird
 	  char buf[256];
 	  sprintf(buf, "bird%d_%d", g_iBirdPic, (SDL_GetTicks() / 200) % 3);
-	  gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
+	  gpSprite->DrawEx(gpRenderer, buf, 60, g_flBirdHeight100 / 100, g_flBirdAngle100 / 100);
 
 	  DrawScore(g_iScore);
 	  time++;
@@ -582,7 +598,7 @@ static void GameThink_GameOver()
       // draw bird
       char buf[256];
       sprintf(buf, "bird%d_0", g_iBirdPic);
-      gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
+      gpSprite->DrawEx(gpRenderer, buf, 60, g_flBirdHeight100 / 100, g_flBirdAngle100 / 100);
 
       if (time > 30)
 	{
@@ -672,7 +688,7 @@ static void GameThink_GameOver()
       // draw bird
       char buf[256];
       sprintf(buf, "bird%d_0", g_iBirdPic);
-      gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
+      gpSprite->DrawEx(gpRenderer, buf, 60, g_flBirdHeight100 / 100, g_flBirdAngle100 / 100);
 
       gpSprite->Draw(gpRenderer, "text_game_over", 45, 80 * SCALE + 15 * 3);
 
@@ -688,7 +704,7 @@ static void GameThink_GameOver()
 	{
     int panelY = 190 * SCALE;
 	  gpSprite->Draw(gpRenderer, "score_panel", 31, panelY);
-	  DrawScoreOnBoard(std::min<int>(g_iScore, (time - 15) / 2), 240, panelY + 35);
+	  DrawScoreOnBoard(min(g_iScore, (time - 15) / 2), 240, panelY + 35);
 	  DrawScoreOnBoard(g_iHighScore, 240, panelY + 75);
 
 	  if (bIsHighscore)

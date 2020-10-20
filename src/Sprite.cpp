@@ -98,7 +98,7 @@ void CSprite::Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y)
     }
 }
 
-void CSprite::DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, double angle)
+void CSprite::DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, int angle)
 {
   ENTRY item;
   item.key = (char *)szTag;
