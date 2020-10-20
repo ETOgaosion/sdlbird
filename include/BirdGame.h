@@ -38,4 +38,12 @@
 
 int GameMain();
 
+#ifdef __NAVY__
+#define RES_PREFIX "/share/games/bird/"
+#else
+#define RES_PREFIX "res/"
+#endif
+
+#define FILE_PATH(path) RES_PREFIX path
+
 #endif /* _BIRDGAME_H_ */

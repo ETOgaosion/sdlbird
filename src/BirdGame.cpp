@@ -84,11 +84,11 @@ static void *g_pSfxWing = NULL;
 
 static void LoadWav()
 {
-  g_pSfxDie = SOUND_LoadWAV("res/sfx_die.wav");
-  g_pSfxHit = SOUND_LoadWAV("res/sfx_hit.wav");
-  g_pSfxPoint = SOUND_LoadWAV("res/sfx_point.wav");
-  g_pSfxSwooshing = SOUND_LoadWAV("res/sfx_swooshing.wav");
-  g_pSfxWing = SOUND_LoadWAV("res/sfx_wing.wav");
+  g_pSfxDie = SOUND_LoadWAV(FILE_PATH("sfx_die.wav"));
+  g_pSfxHit = SOUND_LoadWAV(FILE_PATH("sfx_hit.wav"));
+  g_pSfxPoint = SOUND_LoadWAV(FILE_PATH("sfx_point.wav"));
+  g_pSfxSwooshing = SOUND_LoadWAV(FILE_PATH("sfx_swooshing.wav"));
+  g_pSfxWing = SOUND_LoadWAV(FILE_PATH("sfx_wing.wav"));
 }
 
 static void FreeWav()
@@ -159,10 +159,10 @@ static void UpdateEvents()
 
 static void ShowTitle()
 {
-  SDL_Surface *pSurfaceTitle = IMG_Load("res/splash.png");
+  SDL_Surface *pSurfaceTitle = IMG_Load(FILE_PATH("splash.png"));
   if (pSurfaceTitle == NULL)
     {
-      fprintf(stderr, "cannot load res/splash.png\n");
+      fprintf(stderr, "cannot load splash.png\n");
       return;
     }
 
@@ -733,7 +733,7 @@ int GameMain()
 {
   srand((unsigned int)time(NULL));
 
-  gpSprite = new CSprite(gpRenderer, "res/atlas.png", "res/atlas.txt");
+  gpSprite = new CSprite(gpRenderer, FILE_PATH("atlas.png"), FILE_PATH("atlas.txt"));
 
   atexit([](void) { delete gpSprite; });
 
