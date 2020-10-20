@@ -32,6 +32,10 @@
 
 #include "Sprite.h"
 
+// The larger this value is, the easier the game is.
+#define PIPE_Y_DISTANCE 100
+#define LAND_HEIGHT 30
+
 int GameMain();
 
 #endif /* _BIRDGAME_H_ */
