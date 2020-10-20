@@ -130,9 +130,7 @@ void SOUND_CloseAudio()
 
 void *SOUND_LoadWAV(const char *filename)
 {
-#ifdef __NAVY__
-  return NULL;
-#endif
+#ifndef __NAVY__
   SDL_AudioCVT *wavecvt;
   SDL_AudioSpec wavespec, *loaded;
   unsigned char *buf;
@@ -184,6 +182,8 @@ void *SOUND_LoadWAV(const char *filename)
     }
 
   return wavecvt;
+#endif
+  return NULL;
 }
 
 void SOUND_FreeWAV(void *audio)
@@ -200,9 +200,7 @@ void SOUND_FreeWAV(void *audio)
 
 void SOUND_PlayWAV(int channel, void *audio)
 {
-#ifdef __NAVY__
-  return;
-#endif
+#ifndef __NAVY__
   if (audio == NULL)
     {
       return;
@@ -222,4 +220,5 @@ void SOUND_PlayWAV(int channel, void *audio)
   SDL_mutexV(mtx);
 
   SDL_PauseAudio(0);
+#endif
 }

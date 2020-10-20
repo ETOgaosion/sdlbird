@@ -33,8 +33,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include <map>
-
 typedef struct tagSpritePart
 {
   unsigned short usWidth;
@@ -50,8 +48,8 @@ class CSprite
 
   void                  Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y);
   void                  DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, double angle);
-  void                  SetAlpha(unsigned char alpha) { } //SDL_SetTextureAlphaMod(m_pTexture, alpha); }
-  void                  SetColorMod(unsigned char r, unsigned char g, unsigned char b) { } //SDL_SetTextureColorMod(m_pTexture, r, g, b); }
+  void                  SetAlpha(unsigned char alpha) { }
+  void                  SetColorMod(unsigned char r, unsigned char g, unsigned char b) { }
 
  private:
   void                  Load(SDL_Surface *pRenderer, const char *szImageFileName, const char *szTxtFileName);
@@ -60,7 +58,6 @@ class CSprite
   SDL_Surface          *m_pTexture;
   int                   m_iTextureWidth;
   int                   m_iTextureHeight;
-  std::map<unsigned int, SpritePart_t>    m_mapSpriteParts;
 };
 
 #endif /* _SPRITE_H_ */

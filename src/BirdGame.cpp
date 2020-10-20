@@ -35,7 +35,6 @@
 #include "Video.h"
 #include "Audio.h"
 
-#include <algorithm>
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>

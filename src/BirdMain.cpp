@@ -32,6 +32,7 @@
 
 #include "BirdMain.h"
 #include "Video.h"
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {

@@ -28,9 +28,14 @@
  */
 
 #include "Sprite.h"
+#include <search.h>
+#include <assert.h>
+#include <string.h>
 
 CSprite::CSprite(SDL_Surface *pRenderer, const char *szImageFileName, const char *szTxtFileName)
 {
+  int ret = hcreate(512);
+  assert(ret);
   Load(pRenderer, szImageFileName, szTxtFileName);
 }
 
@@ -40,6 +45,7 @@ CSprite::~CSprite()
     {
       SDL_FreeSurface(m_pTexture);
     }
+  hdestroy();
 }
 
 /**
@@ -69,51 +75,51 @@ inline unsigned int CalcTag(const char *sz)
 
 void CSprite::Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y)
 {
-  unsigned int uiTag = CalcTag(szTag);
+  ENTRY item;
+  item.key = (char *)szTag;
+  ENTRY *ret = hsearch(item, FIND);
 
-  std::map<unsigned int, SpritePart_t>::iterator it = m_mapSpriteParts.find(uiTag);
-
-  if (it != m_mapSpriteParts.end())
+  if (ret)
     {
       SDL_Rect srcrect, dstrect;
+      SpritePart_t *it = (SpritePart_t *)ret->data;
 
-      srcrect.x = it->second.X;
-      srcrect.y = it->second.Y;
-      srcrect.w = it->second.usWidth;
-      srcrect.h = it->second.usHeight;
+      srcrect.x = it->X;
+      srcrect.y = it->Y;
+      srcrect.w = it->usWidth;
+      srcrect.h = it->usHeight;
 
       dstrect.x = x;
       dstrect.y = y;
-      dstrect.w = it->second.usWidth;
-      dstrect.h = it->second.usHeight;
+      dstrect.w = it->usWidth;
+      dstrect.h = it->usHeight;
 
-      //SDL_RenderCopy(pRenderer, m_pTexture, &srcrect, &dstrect);
       SDL_BlitSurface(m_pTexture, &srcrect, pRenderer, &dstrect);
     }
 }
 
 void CSprite::DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, double angle)
 {
-  unsigned int uiTag = CalcTag(szTag);
+  ENTRY item;
+  item.key = (char *)szTag;
+  ENTRY *ret = hsearch(item, FIND);
 
-  std::map<unsigned int, SpritePart_t>::iterator it = m_mapSpriteParts.find(uiTag);
-
-  if (it != m_mapSpriteParts.end())
+  if (ret)
     {
       SDL_Rect srcrect, dstrect;
+      SpritePart_t *it = (SpritePart_t *)ret->data;
 
-      srcrect.x = it->second.X;
-      srcrect.y = it->second.Y;
-      srcrect.w = it->second.usWidth;
-      srcrect.h = it->second.usHeight;
+      srcrect.x = it->X;
+      srcrect.y = it->Y;
+      srcrect.w = it->usWidth;
+      srcrect.h = it->usHeight;
 
       dstrect.x = x;
       dstrect.y = y;
-      dstrect.w = it->second.usWidth;
-      dstrect.h = it->second.usHeight;
+      dstrect.w = it->usWidth;
+      dstrect.h = it->usHeight;
 
       SDL_BlitSurface(m_pTexture, &srcrect, pRenderer, &dstrect);
-//      SDL_RenderCopyEx(pRenderer, m_pTexture, &srcrect, &dstrect, angle, NULL, SDL_FLIP_NONE);
     }
 }
 
@@ -163,23 +169,18 @@ bool CSprite::LoadTxt(const char *szTxtFileName)
 	  continue;
 	}
 
-      SpritePart_t spritePart;
+      SpritePart_t *spritePart = new SpritePart_t;
 
-      spritePart.usWidth = w;
-      spritePart.usHeight = h;
-      spritePart.X = (unsigned short)(m_iTextureWidth * x1);
-      spritePart.Y = (unsigned short)(m_iTextureHeight * y1);
+      spritePart->usWidth = w;
+      spritePart->usHeight = h;
+      spritePart->X = (unsigned short)(m_iTextureWidth * x1);
+      spritePart->Y = (unsigned short)(m_iTextureHeight * y1);
 
-      unsigned int uiTag = CalcTag(name);
-
-      if (m_mapSpriteParts.find(uiTag) == m_mapSpriteParts.end())
-	{
-	  m_mapSpriteParts[uiTag] = spritePart;
-	}
-      else
-	{
-	  fprintf(stderr, "CSprite::LoadTxt(): WARNING, duplicate tag: %s %u\n", name, uiTag);
-	}
+      ENTRY item;
+      item.key = strdup(name);
+      item.data = spritePart;
+      ENTRY *ret = hsearch(item, ENTER);
+      assert(ret != NULL);
     }
 
   fclose(fp);
