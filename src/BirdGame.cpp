@@ -35,9 +35,9 @@
 #include "Video.h"
 #include "Audio.h"
 
-#include <math.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 
 #define SCALE SCREEN_HEIGHT / 511
 #define BIRD_DROP_HEIGHT 40
@@ -83,6 +83,8 @@ static void *g_pSfxWing = NULL;
 
 #ifdef __NAVY__
 #include <fixedptc.h>
+#else
+#include <math.h>
 #endif
 
 static inline int min(int a, int b) { return a < b ? a : b; }
@@ -180,6 +182,15 @@ static void ShowTitle()
       fprintf(stderr, "cannot load splash.png\n");
       return;
     }
+
+  SDL_PixelFormat *fmt = pSurfaceTitle->format;
+  SDL_PixelFormat to = *fmt;
+  to.Rloss = fmt->Bloss; to.Rshift = fmt->Bshift; to.Rmask = fmt->Bmask;
+  to.Bloss = fmt->Rloss; to.Bshift = fmt->Rshift; to.Bmask = fmt->Rmask;
+  SDL_Surface *s = SDL_ConvertSurface(pSurfaceTitle, &to, 0);
+  assert(s);
+  SDL_FreeSurface(pSurfaceTitle);
+  pSurfaceTitle = s;
 
   unsigned int uiStartTime = SDL_GetTicks();
 
@@ -516,15 +527,6 @@ static void GameThink_GameOver()
   if (gameoverState == FLASH)
     {
       SDL_FillRect(gpRenderer, NULL, 0xFFFFFFFF);
-      //SDL_Surface *surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-      //SDL_FillRect(surface, NULL, 0xFFFFFFFF);
-
-      //SDL_Texture *texture = SDL_CreateTextureFromSurface(gpRenderer, surface);
-      //SDL_FreeSurface(surface);
-
-      //SDL_RenderCopy(gpRenderer, texture, NULL, NULL);
-      //SDL_DestroyTexture(texture);
-
       if (time == 0)
 	{
 	  SOUND_PlayWAV(0, g_pSfxHit);

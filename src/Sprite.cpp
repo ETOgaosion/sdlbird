@@ -111,7 +111,13 @@ void CSprite::Load(SDL_Surface *pRenderer, const char *szImageFileName, const ch
   m_iTextureWidth = pSurface->w;
   m_iTextureHeight = pSurface->h;
 
-  m_pTexture = pSurface;
+  SDL_PixelFormat *fmt = pSurface->format;
+  SDL_PixelFormat to = *fmt;
+  to.Rloss = fmt->Bloss; to.Rshift = fmt->Bshift; to.Rmask = fmt->Bmask;
+  to.Bloss = fmt->Rloss; to.Bshift = fmt->Rshift; to.Bmask = fmt->Rmask;
+  m_pTexture = SDL_ConvertSurface(pSurface, &to, 0);
+  assert(m_pTexture);
+  SDL_FreeSurface(pSurface);
 
   // Load txt file
   if (!LoadTxt(szTxtFileName))
