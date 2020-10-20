@@ -28,6 +28,7 @@
  */
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 #include "BirdGame.h"
 #include "Sprite.h"
@@ -154,10 +155,10 @@ static void UpdateEvents()
 
 static void ShowTitle()
 {
-  SDL_Surface *pSurfaceTitle = SDL_LoadBMP("res/splash.bmp");
+  SDL_Surface *pSurfaceTitle = IMG_Load("res/splash.png");
   if (pSurfaceTitle == NULL)
     {
-      fprintf(stderr, "cannot load res/splash.bmp\n");
+      fprintf(stderr, "cannot load res/splash.png\n");
       return;
     }
 
@@ -738,7 +739,7 @@ int GameMain()
 {
   srand((unsigned int)time(NULL));
 
-  gpSprite = new CSprite(gpRenderer, "res/atlas.bmp", "res/atlas.txt");
+  gpSprite = new CSprite(gpRenderer, "res/atlas.png", "res/atlas.txt");
 
   atexit([](void) { delete gpSprite; });
 

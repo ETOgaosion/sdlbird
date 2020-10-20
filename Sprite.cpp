@@ -117,11 +117,11 @@ void CSprite::DrawEx(SDL_Renderer *pRenderer, const char *szTag, int x, int y, d
 
 void CSprite::Load(SDL_Renderer *pRenderer, const char *szImageFileName, const char *szTxtFileName)
 {
-  SDL_Surface *pSurface = SDL_LoadBMP(szImageFileName);
+  SDL_Surface *pSurface = IMG_Load(szImageFileName);
 
   if (pSurface == NULL)
     {
-      fprintf(stderr, "CSprite::Load(): IMG_Load failed: %s\n", SDL_GetError());
+      fprintf(stderr, "CSprite::Load(): IMG_Load failed: %s\n", IMG_GetError());
       return;
     }
 
