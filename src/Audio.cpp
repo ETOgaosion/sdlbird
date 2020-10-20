@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
-#include "SDL.h"
+#include <SDL.h>
 
 static int audio_len = 0;
 static unsigned char *audio_pos = NULL;
@@ -103,13 +103,6 @@ int SOUND_OpenAudio(int freq, int channels, int samples)
   audio_spec.callback = SOUND_FillAudio;
   audio_spec.userdata = NULL;
 
-  // Initialize audio
-  if (!SDL_WasInit(SDL_INIT_AUDIO)) 
-    {
-      fprintf(stderr, "ERROR: SDL not initialized: %s.\n", SDL_GetError());
-      return -1;
-    }
-
   // Open the audio device, forcing the desired format
   if (SDL_OpenAudio(&audio_spec, NULL) < 0)
     {
@@ -137,6 +130,9 @@ void SOUND_CloseAudio()
 
 void *SOUND_LoadWAV(const char *filename)
 {
+#ifdef __NAVY__
+  return NULL;
+#endif
   SDL_AudioCVT *wavecvt;
   SDL_AudioSpec wavespec, *loaded;
   unsigned char *buf;
@@ -196,12 +192,17 @@ void SOUND_FreeWAV(void *audio)
     {
       return;
     }
+#ifndef __NAVY__
   free(((SDL_AudioCVT *)audio)->buf);
+#endif
   free(audio);
 }
 
 void SOUND_PlayWAV(int channel, void *audio)
 {
+#ifdef __NAVY__
+  return;
+#endif
   if (audio == NULL)
     {
       return;

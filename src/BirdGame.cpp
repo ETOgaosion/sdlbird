@@ -130,6 +130,7 @@ static void UpdateEvents()
     {
       switch (evt.type)
 	{
+#ifndef __NAVY__
 	case SDL_QUIT:
 	  exit(0);
 	  break;
@@ -143,6 +144,7 @@ static void UpdateEvents()
 	case SDL_MOUSEBUTTONUP:
 	  g_bMouseDown = false;
 	  break;
+#endif
 
 	case SDL_KEYDOWN:
 	  g_bMouseDown = true;
