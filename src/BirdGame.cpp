@@ -318,25 +318,15 @@ static void GameThink_Initial()
   sprintf(buf, "bird0_%d", (SDL_GetTicks() / 200) % 3);
   gpSprite->Draw(gpRenderer, buf, 118, 180 * SCALE + (int)(cos(SDL_GetTicks() / 2 * 3.14 / 180) * 5));
 
-  gpSprite->Draw(gpRenderer, "button_rate", 105, 275 * SCALE);
-  gpSprite->Draw(gpRenderer, "button_play", 25, 340 * SCALE);
-  gpSprite->Draw(gpRenderer, "button_score", 145, 340 * SCALE);
+  gpSprite->Draw(gpRenderer, "button_play", 85, 340 * SCALE);
 
   gpSprite->Draw(gpRenderer, "brand_copyright", 80, 450 * SCALE);
 
   if (g_bMouseDown)
     {
-      if (g_iMouseX > 25 && g_iMouseY > 340 * SCALE && g_iMouseX < 25 + 100 && g_iMouseY < 340 * SCALE + 55)
-	{
 	  // user clicked "play" button
 	  fading_start_time = SDL_GetTicks();
 	  enNextGameState = GAMESTATE_GAMESTART;
-	}
-      else if (g_iMouseX > 145 && g_iMouseY > 340 * SCALE && g_iMouseX < 145 + 100 && g_iMouseY < 340 * SCALE + 55)
-	{
-	  // user clicked "score" button
-	  // TODO
-	}
     }
 }
 
@@ -726,21 +716,12 @@ static void GameThink_GameOver()
 	      gpSprite->Draw(gpRenderer, "medals_3", 62, medalY);
 	    }
 		  
-	  gpSprite->Draw(gpRenderer, "button_play", 30, 340 * SCALE);
-	  gpSprite->Draw(gpRenderer, "button_score", 150, 340 * SCALE);
+	  gpSprite->Draw(gpRenderer, "button_play", 85, 340 * SCALE);
 
 	  if (fading_start_time == 0 && g_bMouseDown)
 	    {
-	      if (g_iMouseX > 30 && g_iMouseY > 340 * SCALE && g_iMouseX < 30 + 100 && g_iMouseY < 340 * SCALE + 55)
-		{
-		  // user clicked "play" button
+		  // user clicked to play
 		  fading_start_time = SDL_GetTicks();
-		}
-	      else if (g_iMouseX > 150 && g_iMouseY > 340 * SCALE && g_iMouseX < 150 + 100 && g_iMouseY < 340 * SCALE + 55)
-		{
-		  // user clicked "score" button
-		  // TODO
-		}
 	    }
 
 	}
