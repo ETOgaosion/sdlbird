@@ -161,10 +161,9 @@ bool CSprite::LoadTxt(const char *szTxtFileName)
   while (!feof(fp))
     {
       char name[256];
-      int w, h;
-      float x1, y1, x2, y2;
+      int w, h, x, y;
 
-      if (fscanf(fp, "%s %d %d %f %f %f %f", name, &w, &h, &x1, &y1, &x2, &y2) != 7)
+      if (fscanf(fp, "%s %d %d %d %d", name, &w, &h, &x, &y) != 5)
 	{
 	  continue;
 	}
@@ -173,8 +172,8 @@ bool CSprite::LoadTxt(const char *szTxtFileName)
 
       spritePart->usWidth = w;
       spritePart->usHeight = h;
-      spritePart->X = (unsigned short)(m_iTextureWidth * x1);
-      spritePart->Y = (unsigned short)(m_iTextureHeight * y1);
+      spritePart->X = x;
+      spritePart->Y = y;
 
       ENTRY item;
       item.key = strdup(name);
