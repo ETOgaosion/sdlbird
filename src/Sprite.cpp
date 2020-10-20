@@ -48,31 +48,6 @@ CSprite::~CSprite()
   hdestroy();
 }
 
-/**
- * This hash function has been taken from an Article in Dr Dobbs Journal.
- * This is normally a collision-free function, distributing keys evenly.
- * Collision can be avoided by comparing the key itself in last resort.
- */
-inline unsigned int CalcTag(const char *sz)
-{
-  unsigned int hash = 0;
-
-  while (*sz)
-    {
-      hash += (unsigned short)*sz;
-      hash += (hash << 10);
-      hash ^= (hash >> 6);
-
-      sz++;
-    }
-
-  hash += (hash << 3);
-  hash ^= (hash >> 11);
-  hash += (hash << 15);
-
-  return hash;
-}
-
 void CSprite::Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y)
 {
   ENTRY item;
