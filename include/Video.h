@@ -30,8 +30,7 @@
 #ifndef _VIDEO_H_
 #define _VIDEO_H_
 
-extern SDL_Window        *gpWindow;
-extern SDL_Renderer      *gpRenderer;
+extern SDL_Surface       *gpRenderer;
 
 bool VideoInit();
 void VideoDestroy();

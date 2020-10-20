@@ -45,19 +45,19 @@ typedef struct tagSpritePart
 class CSprite
 {
  public:
-  CSprite(SDL_Renderer *pRenderer, const char *szImageFileName, const char *szTxtFileName);
+  CSprite(SDL_Surface *pRenderer, const char *szImageFileName, const char *szTxtFileName);
   virtual ~CSprite();
 
-  void                  Draw(SDL_Renderer *pRenderer, const char *szTag, int x, int y);
-  void                  DrawEx(SDL_Renderer *pRenderer, const char *szTag, int x, int y, double angle, SDL_RendererFlip flip);
-  void                  SetAlpha(unsigned char alpha) { SDL_SetTextureAlphaMod(m_pTexture, alpha); }
-  void                  SetColorMod(unsigned char r, unsigned char g, unsigned char b) { SDL_SetTextureColorMod(m_pTexture, r, g, b); }
+  void                  Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y);
+  void                  DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, double angle);
+  void                  SetAlpha(unsigned char alpha) { } //SDL_SetTextureAlphaMod(m_pTexture, alpha); }
+  void                  SetColorMod(unsigned char r, unsigned char g, unsigned char b) { } //SDL_SetTextureColorMod(m_pTexture, r, g, b); }
 
  private:
-  void                  Load(SDL_Renderer *pRenderer, const char *szImageFileName, const char *szTxtFileName);
+  void                  Load(SDL_Surface *pRenderer, const char *szImageFileName, const char *szTxtFileName);
   bool                  LoadTxt(const char *szTxtFileName);
 
-  SDL_Texture          *m_pTexture;
+  SDL_Surface          *m_pTexture;
   int                   m_iTextureWidth;
   int                   m_iTextureHeight;
   std::map<unsigned int, SpritePart_t>    m_mapSpriteParts;

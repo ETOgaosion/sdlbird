@@ -164,27 +164,23 @@ static void ShowTitle()
       return;
     }
 
-  SDL_Texture *pTextureTitle = SDL_CreateTextureFromSurface(gpRenderer, pSurfaceTitle);
-  SDL_FreeSurface(pSurfaceTitle);
-
-  if (pTextureTitle == NULL)
-    {
-      fprintf(stderr, "cannot create texture from splash.png\n");
-      return;
-    }
-
   unsigned int uiStartTime = SDL_GetTicks();
 
-  while (SDL_GetTicks() - uiStartTime < 3000)
+  SDL_Rect rect;
+  rect.x = (pSurfaceTitle->w - SCREEN_WIDTH) / 2;
+  rect.y = (pSurfaceTitle->h - SCREEN_HEIGHT) / 2;
+  rect.w = SCREEN_WIDTH;
+  rect.h = SCREEN_HEIGHT;
+  while (SDL_GetTicks() - uiStartTime < 1000)
     {
-      SDL_RenderCopy(gpRenderer, pTextureTitle, NULL, NULL);
-      SDL_RenderPresent(gpRenderer);
+      SDL_BlitSurface(pSurfaceTitle, &rect, gpRenderer, NULL);
+      SDL_UpdateRect(gpRenderer, 0, 0, 0, 0);
 
       UpdateEvents();
       SDL_Delay(100);
     }
 
-  SDL_DestroyTexture(pTextureTitle);
+  SDL_FreeSurface(pSurfaceTitle);
 }
 
 static void DrawBackground()
@@ -451,7 +447,7 @@ static void GameThink_Game()
   // draw bird
   char buf[256];
   sprintf(buf, "bird%d_%d", g_iBirdPic, (SDL_GetTicks() / 200) % 3);
-  gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle, SDL_FLIP_NONE);
+  gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
 
   // check if bird is in the range of a pipe
   if (g_iPipePosX[0] < 60 + BIRDWIDTH - BIRDMARGIN && g_iPipePosX[0] + PIPEWIDTH > 60 + BIRDMARGIN)
@@ -502,14 +498,15 @@ static void GameThink_GameOver()
 
   if (gameoverState == FLASH)
     {
-      SDL_Surface *surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-      SDL_FillRect(surface, NULL, 0xFFFFFFFF);
+      SDL_FillRect(gpRenderer, NULL, 0xFFFFFFFF);
+      //SDL_Surface *surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+      //SDL_FillRect(surface, NULL, 0xFFFFFFFF);
 
-      SDL_Texture *texture = SDL_CreateTextureFromSurface(gpRenderer, surface);
-      SDL_FreeSurface(surface);
+      //SDL_Texture *texture = SDL_CreateTextureFromSurface(gpRenderer, surface);
+      //SDL_FreeSurface(surface);
 
-      SDL_RenderCopy(gpRenderer, texture, NULL, NULL);
-      SDL_DestroyTexture(texture);
+      //SDL_RenderCopy(gpRenderer, texture, NULL, NULL);
+      //SDL_DestroyTexture(texture);
 
       if (time == 0)
 	{
@@ -555,7 +552,7 @@ static void GameThink_GameOver()
 	  // draw bird
 	  char buf[256];
 	  sprintf(buf, "bird%d_%d", g_iBirdPic, (SDL_GetTicks() / 200) % 3);
-	  gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle, SDL_FLIP_NONE);
+	  gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
 
 	  DrawScore(g_iScore);
 	  time++;
@@ -584,7 +581,7 @@ static void GameThink_GameOver()
       // draw bird
       char buf[256];
       sprintf(buf, "bird%d_0", g_iBirdPic);
-      gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle, SDL_FLIP_NONE);
+      gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
 
       if (time > 30)
 	{
@@ -674,7 +671,7 @@ static void GameThink_GameOver()
       // draw bird
       char buf[256];
       sprintf(buf, "bird%d_0", g_iBirdPic);
-      gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle, SDL_FLIP_NONE);
+      gpSprite->DrawEx(gpRenderer, buf, 60, (int)g_flBirdHeight, g_flBirdAngle);
 
       gpSprite->Draw(gpRenderer, "text_game_over", 45, 80 * SCALE + 15 * 3);
 
@@ -792,7 +789,7 @@ int GameMain()
 	  exit(255);
 	}
 
-      SDL_RenderPresent(gpRenderer);
+      SDL_UpdateRect(gpRenderer, 0, 0, 0, 0);
     }
 
   return 255; // shouldn't really reach here

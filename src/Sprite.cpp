@@ -29,7 +29,7 @@
 
 #include "Sprite.h"
 
-CSprite::CSprite(SDL_Renderer *pRenderer, const char *szImageFileName, const char *szTxtFileName)
+CSprite::CSprite(SDL_Surface *pRenderer, const char *szImageFileName, const char *szTxtFileName)
 {
   Load(pRenderer, szImageFileName, szTxtFileName);
 }
@@ -38,7 +38,7 @@ CSprite::~CSprite()
 {
   if (m_pTexture != NULL)
     {
-      SDL_DestroyTexture(m_pTexture);
+      SDL_FreeSurface(m_pTexture);
     }
 }
 
@@ -67,7 +67,7 @@ inline unsigned int CalcTag(const char *sz)
   return hash;
 }
 
-void CSprite::Draw(SDL_Renderer *pRenderer, const char *szTag, int x, int y)
+void CSprite::Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y)
 {
   unsigned int uiTag = CalcTag(szTag);
 
@@ -87,11 +87,12 @@ void CSprite::Draw(SDL_Renderer *pRenderer, const char *szTag, int x, int y)
       dstrect.w = it->second.usWidth;
       dstrect.h = it->second.usHeight;
 
-      SDL_RenderCopy(pRenderer, m_pTexture, &srcrect, &dstrect);
+      //SDL_RenderCopy(pRenderer, m_pTexture, &srcrect, &dstrect);
+      SDL_BlitSurface(m_pTexture, &srcrect, pRenderer, &dstrect);
     }
 }
 
-void CSprite::DrawEx(SDL_Renderer *pRenderer, const char *szTag, int x, int y, double angle, SDL_RendererFlip flip)
+void CSprite::DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, double angle)
 {
   unsigned int uiTag = CalcTag(szTag);
 
@@ -111,11 +112,12 @@ void CSprite::DrawEx(SDL_Renderer *pRenderer, const char *szTag, int x, int y, d
       dstrect.w = it->second.usWidth;
       dstrect.h = it->second.usHeight;
 
-      SDL_RenderCopyEx(pRenderer, m_pTexture, &srcrect, &dstrect, angle, NULL, flip);
+      SDL_BlitSurface(m_pTexture, &srcrect, pRenderer, &dstrect);
+//      SDL_RenderCopyEx(pRenderer, m_pTexture, &srcrect, &dstrect, angle, NULL, SDL_FLIP_NONE);
     }
 }
 
-void CSprite::Load(SDL_Renderer *pRenderer, const char *szImageFileName, const char *szTxtFileName)
+void CSprite::Load(SDL_Surface *pRenderer, const char *szImageFileName, const char *szTxtFileName)
 {
   SDL_Surface *pSurface = IMG_Load(szImageFileName);
 
@@ -128,19 +130,12 @@ void CSprite::Load(SDL_Renderer *pRenderer, const char *szImageFileName, const c
   m_iTextureWidth = pSurface->w;
   m_iTextureHeight = pSurface->h;
 
-  m_pTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
-  SDL_FreeSurface(pSurface);
-
-  if (m_pTexture == NULL)
-    {
-      fprintf(stderr, "CSprite::Load(): SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
-      return;
-    }
+  m_pTexture = pSurface;
 
   // Load txt file
   if (!LoadTxt(szTxtFileName))
     {
-      SDL_DestroyTexture(m_pTexture);
+      SDL_FreeSurface(m_pTexture);
       m_pTexture = NULL;
 
       fprintf(stderr, "CSprite::Load(): LoadTxte failed\n");

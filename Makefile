@@ -12,9 +12,9 @@ CC  = gcc
 CXX = g++
 LD  = g++
 INCLUDES  = $(addprefix -I, $(INC_DIR))
-CFLAGS   += -O2 -MMD -Wall $(INCLUDES) `sdl2-config --cflags`
+CFLAGS   += -O2 -MMD -Wall $(INCLUDES) `sdl-config --cflags`
 CXXFLAGS += $(CFLAGS)
-LDFLAGS  += -O2 `sdl2-config --libs` -lSDL2_image
+LDFLAGS  += -O2 `sdl-config --libs` -lSDL_image
 
 # Files to be compiled
 CXX_SRCS = $(shell find src/ -name "*.cpp")
