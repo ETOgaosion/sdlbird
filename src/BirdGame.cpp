@@ -144,13 +144,11 @@ static void UpdateEvents()
 	  g_bMouseDown = false;
 	  break;
 
-	case SDL_FINGERDOWN:
+	case SDL_KEYDOWN:
 	  g_bMouseDown = true;
-	  g_iMouseX = (int)(evt.tfinger.x * SCREEN_WIDTH);
-	  g_iMouseY = (int)(evt.tfinger.y * SCREEN_HEIGHT);
 	  break;
 
-	case SDL_FINGERUP:
+	case SDL_KEYUP:
 	  g_bMouseDown = false;
 	  break;
 	}
