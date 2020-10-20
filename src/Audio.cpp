@@ -128,9 +128,9 @@ void SOUND_CloseAudio()
   mtx = NULL;
 }
 
+#ifndef __NAVY__
 void *SOUND_LoadWAV(const char *filename)
 {
-#ifndef __NAVY__
   SDL_AudioCVT *wavecvt;
   SDL_AudioSpec wavespec, *loaded;
   unsigned char *buf;
@@ -146,7 +146,7 @@ void *SOUND_LoadWAV(const char *filename)
       return NULL;
     }
 
-  loaded = SDL_LoadWAV_RW(SDL_RWFromFile(filename, "rb"), 1, &wavespec, &buf, &len);
+  loaded = SDL_LoadWAV(filename, &wavespec, &buf, &len);
   if (loaded == NULL) 
     {
       free(wavecvt);
@@ -182,9 +182,28 @@ void *SOUND_LoadWAV(const char *filename)
     }
 
   return wavecvt;
-#endif
-  return NULL;
 }
+#else
+typedef struct {
+  uint8_t *buf;
+  int len;
+  int len_mult;
+} SDL_AudioCVT;
+
+void *SOUND_LoadWAV(const char *filename)
+{
+  SDL_AudioSpec wavespec, *loaded;
+  uint8_t *buf;
+  uint32_t len;
+  SDL_AudioSpec *ret = SDL_LoadWAV(filename, &wavespec, &buf, &len);
+  if (ret == NULL) return NULL;
+  SDL_AudioCVT *audio = new SDL_AudioCVT;
+  audio->buf = buf;
+  audio->len = len;
+  audio->len_mult = 1;
+  return audio;
+}
+#endif
 
 void SOUND_FreeWAV(void *audio)
 {
@@ -192,7 +211,9 @@ void SOUND_FreeWAV(void *audio)
     {
       return;
     }
-#ifndef __NAVY__
+#ifdef __NAVY__
+  SDL_FreeWAV(((SDL_AudioCVT *)audio)->buf);
+#else
   free(((SDL_AudioCVT *)audio)->buf);
 #endif
   free(audio);
@@ -200,7 +221,6 @@ void SOUND_FreeWAV(void *audio)
 
 void SOUND_PlayWAV(int channel, void *audio)
 {
-#ifndef __NAVY__
   if (audio == NULL)
     {
       return;
@@ -220,5 +240,4 @@ void SOUND_PlayWAV(int channel, void *audio)
   SDL_mutexV(mtx);
 
   SDL_PauseAudio(0);
-#endif
 }
