@@ -86,16 +86,30 @@ static void myBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Re
   for (int j = 0; j < h; j ++) {
     uint32_t *pdst = (uint32_t *)dst->pixels + (dy + j) * dst->w + dx;
     uint32_t *psrc = (uint32_t *)src->pixels + (sy + j) * src->w + sx;
-    for (int i = 0; i < w; i ++) {
-      int a = ((uint8_t *)psrc)[3];
-      if (a == 0xff) {
-        *pdst = *psrc;
-      } else if (a != 0) {
-        uint8_t *pd = (uint8_t *)pdst, *ps = (uint8_t *)psrc;
-        pd[0] += ((ps[0] - pd[0]) * a) >> 8;
-        pd[1] += ((ps[1] - pd[1]) * a) >> 8;
-        pd[2] += ((ps[2] - pd[2]) * a) >> 8;
-      }
+#define STEP 16
+    int i;
+    int first = w - w % STEP;
+    for (i = 0; i < first; i += STEP) {
+#define macro(k) { \
+  int a = ((uint8_t *)(psrc + k))[3]; \
+  if (a == 0xff) { \
+    *(pdst + k) = *(psrc + k); \
+  } else if (a != 0) { \
+    uint8_t *pd = (uint8_t *)(pdst + k), *ps = (uint8_t *)(psrc + k); \
+    pd[0] += ((ps[0] - pd[0]) * a) >> 8; \
+    pd[1] += ((ps[1] - pd[1]) * a) >> 8; \
+    pd[2] += ((ps[2] - pd[2]) * a) >> 8; \
+  } \
+}
+      macro(0); macro(1); macro(2); macro(3);
+      macro(4); macro(5); macro(6); macro(7);
+      macro(8); macro(9); macro(10); macro(11);
+      macro(12); macro(13); macro(14); macro(15);
+      pdst += STEP;
+      psrc += STEP;
+    }
+    for (; i < w; i ++) {
+      macro(0);
       pdst ++;
       psrc ++;
     }
