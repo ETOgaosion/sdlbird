@@ -87,22 +87,15 @@ static void myBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Re
     uint32_t *pdst = (uint32_t *)dst->pixels + (dy + j) * dst->w + dx;
     uint32_t *psrc = (uint32_t *)src->pixels + (sy + j) * src->w + sx;
     for (int i = 0; i < w; i ++) {
-      union {
-        struct { uint8_t b, g, r, a; };
-        uint32_t val;
-      } pd, ps;
-      pd.val = *pdst;
-      ps.val = *psrc;
-      if (ps.a == 0xff) {
-        pd.r = ps.r;
-        pd.g = ps.g;
-        pd.b = ps.b;
-      } else {
-        pd.r += (ps.r - pd.r) * ps.a / 255;
-        pd.g += (ps.g - pd.g) * ps.a / 255;
-        pd.b += (ps.b - pd.b) * ps.a / 255;
+      int a = ((uint8_t *)psrc)[3];
+      if (a == 0xff) {
+        *pdst = *psrc;
+      } else if (a != 0) {
+        uint8_t *pd = (uint8_t *)pdst, *ps = (uint8_t *)psrc;
+        pd[0] += ((ps[0] - pd[0]) * a) >> 8;
+        pd[1] += ((ps[1] - pd[1]) * a) >> 8;
+        pd[2] += ((ps[2] - pd[2]) * a) >> 8;
       }
-      *pdst = pd.val;
       pdst ++;
       psrc ++;
     }
