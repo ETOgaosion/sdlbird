@@ -48,6 +48,59 @@ CSprite::~CSprite()
   hdestroy();
 }
 
+static void myBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
+  assert(dst && src);
+
+  int sx = (srcrect == NULL ? 0 : srcrect->x);
+  int sy = (srcrect == NULL ? 0 : srcrect->y);
+  int dx = (dstrect == NULL ? 0 : dstrect->x);
+  int dy = (dstrect == NULL ? 0 : dstrect->y);
+  int w = (srcrect == NULL ? src->w : srcrect->w);
+  int h = (srcrect == NULL ? src->h : srcrect->h);
+
+  if (sx < 0) { w += sx; dx -= sx; sx = 0; }
+  if (sy < 0) { h += sy; dy -= sy; sy = 0; }
+  if (dx < 0) { w += dx; sx -= dx; dx = 0; }
+  if (dy < 0) { h += dy; sy -= dy; dy = 0; }
+  if (sx >= src->w) return;
+  if (sy >= src->h) return;
+  if (dx >= dst->w) return;
+  if (dy >= dst->h) return;
+  if (src->w - sx < w) { w = src->w - sx; }
+  if (src->h - sy < h) { h = src->h - sy; }
+  if (dst->w - dx < w) { w = dst->w - dx; }
+  if (dst->h - dy < h) { h = dst->h - dy; }
+  if (dstrect != NULL) {
+    dstrect->w = w;
+    dstrect->h = h;
+  }
+
+  for (int j = 0; j < h; j ++) {
+    uint32_t *pdst = (uint32_t *)dst->pixels + (dy + j) * dst->w + dx;
+    uint32_t *psrc = (uint32_t *)src->pixels + (sy + j) * src->w + sx;
+    for (int i = 0; i < w; i ++) {
+      union {
+        struct { uint8_t b, g, r, a; };
+        uint32_t val;
+      } pd, ps;
+      pd.val = *pdst;
+      ps.val = *psrc;
+      if (ps.a == 0xff) {
+        pd.r = ps.r;
+        pd.g = ps.g;
+        pd.b = ps.b;
+      } else {
+        pd.r += (ps.r - pd.r) * ps.a / 255;
+        pd.g += (ps.g - pd.g) * ps.a / 255;
+        pd.b += (ps.b - pd.b) * ps.a / 255;
+      }
+      *pdst = pd.val;
+      pdst ++;
+      psrc ++;
+    }
+  }
+}
+
 void CSprite::Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y)
 {
   ENTRY item;
@@ -69,7 +122,7 @@ void CSprite::Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y)
       dstrect.w = it->usWidth;
       dstrect.h = it->usHeight;
 
-      SDL_BlitSurface(m_pTexture, &srcrect, pRenderer, &dstrect);
+      myBlit(m_pTexture, &srcrect, pRenderer, &dstrect);
     }
 }
 
@@ -94,7 +147,7 @@ void CSprite::DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, in
       dstrect.w = it->usWidth;
       dstrect.h = it->usHeight;
 
-      SDL_BlitSurface(m_pTexture, &srcrect, pRenderer, &dstrect);
+      myBlit(m_pTexture, &srcrect, pRenderer, &dstrect);
     }
 }
 
