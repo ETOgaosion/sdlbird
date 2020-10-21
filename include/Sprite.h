@@ -38,6 +38,7 @@ typedef struct tagSpritePart
   unsigned short usWidth;
   unsigned short usHeight;
   unsigned short X, Y;
+  int hasAlpha;
 } SpritePart_t;
 
 class CSprite

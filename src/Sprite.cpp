@@ -48,7 +48,7 @@ CSprite::~CSprite()
   hdestroy();
 }
 
-static void myBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
+static void myBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect, int hasAlpha) {
   assert(dst && src);
 
   int sx = (srcrect == NULL ? 0 : srcrect->x);
@@ -73,6 +73,14 @@ static void myBlit(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Re
   if (dstrect != NULL) {
     dstrect->w = w;
     dstrect->h = h;
+  }
+
+  if (!hasAlpha) {
+    for (int j = 0; j < h; j ++) {
+      memcpy((uint8_t *)dst->pixels + (dx + (dy + j) * dst->w) * 4,
+          (uint8_t *)src->pixels + (sx + (sy + j) * src->w) * 4, w * 4);
+    }
+    return;
   }
 
   for (int j = 0; j < h; j ++) {
@@ -122,7 +130,7 @@ void CSprite::Draw(SDL_Surface *pRenderer, const char *szTag, int x, int y)
       dstrect.w = it->usWidth;
       dstrect.h = it->usHeight;
 
-      myBlit(m_pTexture, &srcrect, pRenderer, &dstrect);
+      myBlit(m_pTexture, &srcrect, pRenderer, &dstrect, it->hasAlpha);
     }
 }
 
@@ -147,7 +155,7 @@ void CSprite::DrawEx(SDL_Surface *pRenderer, const char *szTag, int x, int y, in
       dstrect.w = it->usWidth;
       dstrect.h = it->usHeight;
 
-      myBlit(m_pTexture, &srcrect, pRenderer, &dstrect);
+      myBlit(m_pTexture, &srcrect, pRenderer, &dstrect, it->hasAlpha);
     }
 }
 
@@ -208,6 +216,17 @@ bool CSprite::LoadTxt(const char *szTxtFileName)
       spritePart->usHeight = h;
       spritePart->X = x;
       spritePart->Y = y;
+
+      spritePart->hasAlpha = 0;
+      for (int j = 0; j < h; j ++) {
+        for (int i = 0; i < w; i ++) {
+          int alpha = ((uint8_t *)m_pTexture->pixels)[((y + j) * m_iTextureWidth + x + i) * 4 + 3];
+          if (alpha != 255) {
+            spritePart->hasAlpha = 1;
+            break;
+          }
+        }
+      }
 
       ENTRY item;
       item.key = strdup(name);
