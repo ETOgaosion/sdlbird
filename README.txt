@@ -1,1 +1,1 @@
-SDL2-based flappy bird clone.
+SDL-based flappy bird clone.
