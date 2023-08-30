@@ -37,6 +37,6 @@ void VideoDestroy();
 
 #define SCREEN_WIDTH 287
 //#define SCREEN_HEIGHT 511
-#define SCREEN_HEIGHT 400
+#define SCREEN_HEIGHT 300
 
 #endif /* _VIDEO_H_ */
